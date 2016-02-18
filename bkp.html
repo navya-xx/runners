@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #map {
+        width: 1200px;
+        height: 800px;
+      }
+ html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      #panel li:before{
+        
+        padding: 3px;
+        display:block;
+        color:#fff;
+        font-weight:bold;
+      } 
+      #panel li:nth-child(1):before{
+        content:'startLeg:DRIVING';
+        background:red;
+      } 
+      #panel li:nth-child(2):before{
+        content:'endLeg:TRANSIT';
+        background:blue;
+      } 
+    </style>
+  </head>
+  <body>
+    	<div id="map"></div>
+	<ol id="panel"></ol>
+	    <script>
+		function initMap() {
+		  	initialize();
+		}
+
+		function initialize() {
+		    var goo         = google.maps,
+			map         = new goo.Map(document.getElementById('map'),
+					          {
+					            center  : new goo.LatLng(52.52, 13.40),
+					            zoom    : 10
+					          }
+					         ),
+			App         = { map               : map,
+					bounds            : new goo.LatLngBounds(),
+					directionsService : new goo.DirectionsService(),    
+					directionsDisplay1: new goo.DirectionsRenderer({
+					                      map             : map,
+					                      preserveViewport: true,
+					                      suppressMarkers : true,
+					                      polylineOptions : {strokeColor:'red'},
+					                      panel           : document.getElementById('panel').appendChild(document.createElement('li'))}),
+					/*
+					directionsDisplay2: new goo.DirectionsRenderer({
+					                      map             : map,
+					                      preserveViewport: true,
+					                      suppressMarkers : true,
+					                      polylineOptions : {strokeColor:'blue'},
+					                      panel           : document.getElementById('panel').appendChild(document.createElement('li'))}),
+					*/
+					directionsDisplay3: new goo.DirectionsRenderer({
+					                      map             : map,
+					                      preserveViewport: true,
+					                      suppressMarkers : true,
+					                      polylineOptions : {strokeColor:'blue'},
+					                      panel           : document.getElementById('panel').appendChild(document.createElement('li'))
+					                      })
+			      
+			    },
+			 startLeg   = {  origin     :  '59.445972, 17.967594',
+					destination :  '59.352994, 18.086468',
+					travelMode  :  goo.TravelMode.DRIVING},        
+			 //middleLeg  = {  origin     :  'Norra Fiskartorpsvägen 56, 115 42 Stockholm',
+			//		destination :  'Berlin',
+			//		travelMode  :  goo.TravelMode.TRANSIT},        
+			 endLeg     = { origin      :  '59.352994, 18.086468',
+					destination :  '59.333840, 18.068109',
+					travelMode  :  goo.TravelMode.TRANSIT,
+					transitOptions: {routingPreference : goo.TransitRoutePreference.LESS_WALKING}					
+					};        
+		      
+		      App.directionsService.route(startLeg, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  App.directionsDisplay1.setDirections(result);
+			  App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+			}
+		      }); 
+		      
+		      /*App.directionsService.route(middleLeg, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  App.directionsDisplay2.setDirections(result);
+			  App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+			}
+		      });
+			*/
+		      
+		      App.directionsService.route(endLeg, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  App.directionsDisplay3.setDirections(result);
+			  App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+			}
+		      });
+		}
+
+
+		//google.maps.event.addDomListener(window, 'load', initialize);
+	    </script>
+    	<script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+  </body>
+</html>

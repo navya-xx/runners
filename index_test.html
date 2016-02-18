@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #map {
+        width: 100%;
+        height: 70%;
+      }
+ html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      #panel li:before{
+        
+        padding: 3px;
+        display:block;
+        color:#fff;
+        font-weight:bold;
+      } 
+      #panel li:nth-child(1):before{
+        content:'startLeg:DRIVING';
+        background:red;
+      } 
+      #panel li:nth-child(2):before{
+        content:'endLeg:TRANSIT';
+        background:bltue;
+      } 
+    </style>
+	<script src="js/jquery-1.12.0.min.js"> </script>
+	<script>
+		var gps_cord = new Array();
+		var save_data_url = "saveGPSdata.php";
+		var flag = 0;
+		function success(position, status) {
+			//alert(gps_cord.length);
+			var lat = position.coords.latitude;
+			var long = position.coords.longitude;
+			$("#lat").html(lat);
+			$("#long").html(long);
+			var temp_text = String(Date.now()).concat("-",lat,"|",long,";");
+			// collect 500 points in one array and send it to a file
+			if(gps_cord.length == 50) {
+				send_data = JSON.stringify(gps_cord);
+				gps_cord.length = 0;
+				$.ajax({
+				  type: "post",
+				  dataType: "json",
+				  url: save_data_url,
+				  data: "status=" + flag + "&gpslist=" + send_data
+				})
+				.done (function(data){
+				  	alert(data);
+				  });
+				flag = 1;
+			}
+			gps_cord.push(temp_text);
+		}
+		
+		
+	$(document).ready(function() {
+		navigator.geolocation.getCurrentPosition(function(position) {
+			success(position, 0);
+		});
+		
+		setInterval(function() {
+			navigator.geolocation.getCurrentPosition(
+				function(position) {
+					success(position, 1);
+				}
+			);
+		}, 50);
+	});
+	
+	
+		
+	</script>
+  </head>
+  <body>    	
+GPS cordinates
+<br>
+LATITUDE : <div id="lat"></div>
+<br>
+LONGITUDE : <div id="long"></div>
+<br>
+<input type="button" value="show map" id="button" onclick="$('#map').load('maps.html');">
+<div id="map"></div>	
+  </body>
+</html>

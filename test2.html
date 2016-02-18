@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Directions service</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="floating-panel">
+    <b>Start: </b>
+    <select id="start">
+	<option value="" selected>Origin</option>
+      	<option value="59.447457, 17.968961">Armborstvägen 12, Sollentuna</option>
+	<option value="59.184, 17.817">Karssmyrabvägen, Tumba</option>
+	<option value="59.503 17.609">Tallbodavägen 3-9, Bro</option>
+    </select>
+    <b>End: </b>
+    <select id="end">
+	<option value="" selected>Destination</option>
+      	<option value="59.333819, 18.068055">Nordea Finans Sverige AB, Regeringsgatan, Stockholm</option>
+	<option value="59.342, 18.063">Spotify, Birger Jarlsgatan 61, Stockholm</option>
+	<option value="59.349, 18.070">KTH, Brinellvägen 8, Stockholm</option>
+    </select>
+    </div>
+    <div id="map"></div>
+<ol id="panel"></ol>
+    <script>
+function initMap() {
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer;
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 17,
+    center: {lat: 59.328028, lng: 18.017825}
+  });
+
+	var App         = { 	map               : map,
+				bounds            : new google.maps.LatLngBounds(),
+				directionsService : new google.maps.DirectionsService(),    
+				directionsDisplay1: new google.maps.DirectionsRenderer({
+						      map             : map,
+						      preserveViewport: true,
+						      suppressMarkers : true,
+						      polylineOptions : {strokeColor:'red'},
+						      panel           : document.getElementById('panel').appendChild(document.createElement('li'))}),
+				/*
+				directionsDisplay2: new goo.DirectionsRenderer({
+						      map             : map,
+						      preserveViewport: true,
+						      suppressMarkers : true,
+						      polylineOptions : {strokeColor:'blue'},
+						      panel           : document.getElementById('panel').appendChild(document.createElement('li'))}),
+				*/
+				directionsDisplay3: new google.maps.DirectionsRenderer({
+						      map             : map,
+						      preserveViewport: true,
+						      suppressMarkers : true,
+						      polylineOptions : {strokeColor:'blue'},
+						      panel           : document.getElementById('panel').appendChild(document.createElement('li'))
+						      })
+		      
+		    };
+  	//directionsDisplay.setMap(map);
+	//var bounds = new goo.LatLngBounds()
+
+  var onChangeHandler = function() {
+    calculateAndDisplayRoute(directionsService, directionsDisplay, App);
+  };
+  document.getElementById('start').addEventListener('change', onChangeHandler);
+  document.getElementById('end').addEventListener('change', onChangeHandler);
+}
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay, App) {
+if ( document.getElementById('start').value != "" && document.getElementById('end').value != "") {
+App.directionsService.route({  origin     :  document.getElementById('start').value,
+					destination :  '59.352994, 18.086468',
+					travelMode  :  google.maps.TravelMode.DRIVING}
+			, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  App.directionsDisplay1.setDirections(result);
+			  App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+			}
+		      }); 
+App.directionsService.route({ origin      :  '59.352994, 18.086468',
+					destination :  document.getElementById('end').value,
+					travelMode  :  google.maps.TravelMode.TRANSIT,
+					transitOptions: {routingPreference : google.maps.TransitRoutePreference.LESS_WALKING}					
+					}
+, function(result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  App.directionsDisplay3.setDirections(result);
+			  App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+			}
+		      });
+}
+}
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkshXdZoWRKCGUVs4r4LrkwudefQTSBCg&signed_in=true&callback=initMap"
+        async defer></script>
+  </body>
+</html>
