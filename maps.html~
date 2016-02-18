@@ -39,7 +39,6 @@ function plot_route(file) {
 		url: 'GPX/'+file,
 		success: function (GPSDATA) {
 			handleXMLdata(GPSDATA);
-			initMap();
 		}
 	});
 }
